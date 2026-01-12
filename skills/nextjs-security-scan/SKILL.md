@@ -70,6 +70,20 @@ Scan for hardcoded secrets:
 python scripts/secret-scanner.py /path/to/project
 ```
 
+**Important: Environment File Handling**
+- By default, real `.env` files are **SKIPPED** (`.env`, `.env.local`, `.env.production`, etc.)
+- These files contain actual secrets and should not be in version control
+- Only `.env.example` and `.env.template` files are analyzed for documentation quality
+- Use `--include-env-files` flag only if explicitly requested by user
+
+The scanner will:
+1. Scan source code for hardcoded secrets
+2. Analyze `.env.example` templates to check:
+   - Which sensitive variables are documented
+   - Whether variables have descriptions (comments)
+   - If placeholder values look like real secrets
+   - Suggestions for missing common variables
+
 ### Step 4: Pattern Analysis
 For each file in the codebase, check against patterns in:
 - `references/xss-patterns.md` - XSS vulnerabilities
@@ -97,8 +111,13 @@ Generate a security report using:
 - `**/*.ts`, `**/*.tsx`, `**/*.js`, `**/*.jsx` - Source code
 - `next.config.js`, `next.config.mjs` - Next.js configuration
 - `package.json`, `package-lock.json` - Dependencies
-- `.env*` files - Environment variables
 - `middleware.ts`, `middleware.js` - Middleware security
+
+### Environment Files
+- `.env.example`, `.env.template` - **SCAN** for template analysis
+- `.env`, `.env.local`, `.env.production` - **SKIP** by default (contain real secrets)
+
+**Note:** Real `.env` files should never be committed to version control. The scanner analyzes `.env.example` templates to ensure proper documentation of required variables.
 
 ### High Priority Locations
 - `app/api/**/*` - API routes (App Router)

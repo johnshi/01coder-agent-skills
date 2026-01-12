@@ -36,19 +36,67 @@ A comprehensive security vulnerability scanner for Next.js and TypeScript/JavaSc
 /nextjs-security-scan
 ```
 
+---
+
+### Python Security Scan
+
+A comprehensive security vulnerability scanner for Python projects including Flask, Django, and FastAPI applications.
+
+**Features:**
+- OWASP Top 10:2025 vulnerability detection
+- Python-specific vulnerabilities (eval, exec, pickle, etc.)
+- Framework auto-detection and framework-specific checks
+- SQL/NoSQL/Command injection detection
+- Insecure deserialization patterns
+- Hardcoded secrets and credentials scanning
+- Dependency audit via pip-audit/safety
+- Actionable security reports with CWE references
+
+**Supported Frameworks:**
+- **Flask** - Template injection, session security, debug mode, CORS
+- **Django** - ORM injection, CSRF, settings security, middleware
+- **FastAPI** - Input validation, authentication, CORS, Pydantic security
+
+**Scan Types:**
+- **Quick Scan** - Critical vulnerabilities (secrets, dangerous functions, known CVEs)
+- **Full Scan** - Comprehensive security assessment
+- **Targeted Scan** - Focus on specific categories (injection, deserialization, auth, secrets, deps, crypto, flask, django, fastapi)
+
+**Usage:**
+```
+/python-security-scan
+```
+
 ## Project Structure
 
 ```
 agent-skills/
 ├── skills/
-│   └── nextjs-security-scan/
+│   ├── nextjs-security-scan/
+│   │   ├── SKILL.md              # Skill definition
+│   │   ├── references/           # Vulnerability pattern libraries
+│   │   │   ├── owasp-top-10.md
+│   │   │   ├── xss-patterns.md
+│   │   │   ├── injection-patterns.md
+│   │   │   ├── auth-vulnerabilities.md
+│   │   │   └── nextjs-specific.md
+│   │   ├── scripts/              # Automation tools
+│   │   │   ├── dependency-audit.sh
+│   │   │   ├── secret-scanner.py
+│   │   │   └── pattern-scanner.py
+│   │   └── assets/               # Templates
+│   │       └── report-template.md
+│   │
+│   └── python-security-scan/
 │       ├── SKILL.md              # Skill definition
 │       ├── references/           # Vulnerability pattern libraries
 │       │   ├── owasp-top-10.md
-│       │   ├── xss-patterns.md
+│       │   ├── python-vulnerabilities.md
 │       │   ├── injection-patterns.md
-│       │   ├── auth-vulnerabilities.md
-│       │   └── nextjs-specific.md
+│       │   ├── deserialization.md
+│       │   ├── flask-security.md
+│       │   ├── django-security.md
+│       │   └── fastapi-security.md
 │       ├── scripts/              # Automation tools
 │       │   ├── dependency-audit.sh
 │       │   ├── secret-scanner.py
@@ -85,10 +133,15 @@ To create a new skill:
 
 ## Requirements
 
-For the Next.js Security Scan skill:
+### Next.js Security Scan
 - Python 3.x (for secret scanner)
 - Node.js and npm/yarn/pnpm (for dependency audit)
 - jq (for JSON parsing in audit script)
+
+### Python Security Scan
+- Python 3.8+
+- pip-audit or safety (for dependency audit): `pip install pip-audit`
+- jq (optional, for JSON parsing)
 
 ## License
 
