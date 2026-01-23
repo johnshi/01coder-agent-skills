@@ -93,6 +93,35 @@ Corrects speech recognition errors in subtitle files (.srt) while preserving exa
 /subtitle-correction
 ```
 
+---
+
+### Diagram to Image
+
+Converts Mermaid diagrams and Markdown tables to images (PNG/SVG) for platforms like X/Twitter that don't support rich formatting.
+
+**Features:**
+- Mermaid diagram to PNG/SVG conversion
+- Markdown table to PNG conversion
+- Smart output location detection (auto-finds `images/`, `assets/`, etc.)
+- Intelligent filename generation based on content analysis
+- Context-aware placement based on conversation
+
+**Supported Content:**
+- **Mermaid** - flowchart, sequence, class, state, ER, gantt, pie, mindmap, timeline, etc.
+- **Markdown Tables** - with or without headers
+
+**Smart Behavior:**
+- Detects existing image directories in your project
+- Generates descriptive filenames (e.g., `auth-flow.png`, `model-comparison.png`)
+- Places images near related files when context is available
+
+**Usage:**
+```
+"Convert this diagram to an image"
+"Make this table a PNG for X"
+"Export this flowchart as PNG"
+```
+
 ## Project Structure
 
 ```
@@ -130,13 +159,18 @@ agent-skills/
 │   │   └── assets/               # Templates
 │   │       └── report-template.md
 │   │
-│   └── subtitle-correction/
-│       ├── SKILL.md              # Skill definition
-│       ├── references/           # Domain knowledge
-│       │   ├── terminology.md
-│       │   └── srt-format.md
-│       └── scripts/              # Validation tools
-│           └── subtitle_tool.py
+│   ├── subtitle-correction/
+│   │   ├── SKILL.md              # Skill definition
+│   │   ├── references/           # Domain knowledge
+│   │   │   ├── terminology.md
+│   │   │   └── srt-format.md
+│   │   └── scripts/              # Validation tools
+│   │       └── subtitle_tool.py
+│   │
+│   └── diagram-to-image/
+│       ├── skill.md              # Skill definition
+│       └── scripts/              # Conversion tools
+│           └── table_to_image.py
 ├── .claude/                      # Claude Code configuration
 ├── LICENSE
 └── README.md
@@ -176,6 +210,11 @@ To create a new skill:
 - Python 3.8+
 - pip-audit or safety (for dependency audit): `pip install pip-audit`
 - jq (optional, for JSON parsing)
+
+### Diagram to Image
+- Node.js and npm (for mermaid-cli)
+- mermaid-cli: `npm install -g @mermaid-js/mermaid-cli`
+- Python 3.x with Pillow: `pip install pillow`
 
 ## License
 
