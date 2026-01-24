@@ -6,7 +6,8 @@ Extracts:
 - Title (from first H1/H2 or first line)
 - Cover image (first image)
 - Content images with block index for precise positioning
-- HTML content (images stripped)
+- Dividers (---) with block index for precise positioning
+- HTML content (images and dividers stripped)
 
 Usage:
     python parse_markdown.py <markdown_file> [--output json|html]
@@ -19,12 +20,18 @@ Output (JSON):
         {"path": "/path/to/img.jpg", "block_index": 3, "after_text": "context..."},
         ...
     ],
+    "dividers": [
+        {"block_index": 7, "after_text": "context..."},
+        ...
+    ],
     "html": "<p>Content...</p><h2>Section</h2>...",
     "total_blocks": 25
 }
 
-The block_index indicates which block element (0-indexed) the image should follow.
+The block_index indicates which block element (0-indexed) the image/divider should follow.
 This allows precise positioning without relying on text matching.
+
+Note: Dividers must be inserted via X Articles' Insert > Divider menu, not HTML <hr> tags.
 """
 
 import argparse
@@ -77,6 +84,14 @@ def split_into_blocks(markdown: str) -> list[str]:
                 current_block = []
             continue
 
+        # Horizontal rule (divider) is its own block
+        if re.match(r'^---+$', stripped):
+            if current_block:
+                blocks.append('\n'.join(current_block))
+                current_block = []
+            blocks.append('___DIVIDER___')
+            continue
+
         # Headers, blockquotes are their own blocks
         if stripped.startswith(('#', '>')):
             if current_block:
@@ -105,20 +120,42 @@ def split_into_blocks(markdown: str) -> list[str]:
     return blocks
 
 
-def extract_images_with_block_index(markdown: str, base_path: Path) -> tuple[list[dict], str, int]:
-    """Extract images with their block index position.
+def extract_images_and_dividers(markdown: str, base_path: Path) -> tuple[list[dict], list[dict], str, int]:
+    """Extract images and dividers with their block index positions.
 
     Returns:
-        (image_list, markdown_without_images, total_blocks)
+        (image_list, divider_list, markdown_without_images_and_dividers, total_blocks)
     """
     blocks = split_into_blocks(markdown)
     images = []
+    dividers = []
     clean_blocks = []
 
     img_pattern = re.compile(r'^!\[([^\]]*)\]\(([^)]+)\)$')
 
     for i, block in enumerate(blocks):
-        match = img_pattern.match(block.strip())
+        block_stripped = block.strip()
+
+        # Check for divider
+        if block_stripped == '___DIVIDER___':
+            # block_index is the index in clean_blocks (without images/dividers)
+            block_index = len(clean_blocks)
+
+            # Get context from previous block for reference
+            after_text = ""
+            if clean_blocks:
+                prev_block = clean_blocks[-1].strip()
+                lines = [l for l in prev_block.split('\n') if l.strip()]
+                after_text = lines[-1][:80] if lines else ""
+
+            dividers.append({
+                "block_index": block_index,
+                "after_text": after_text  # Keep for reference/debugging
+            })
+            continue
+
+        # Check for image
+        match = img_pattern.match(block_stripped)
         if match:
             alt_text = match.group(1)
             img_path = match.group(2)
@@ -129,15 +166,13 @@ def extract_images_with_block_index(markdown: str, base_path: Path) -> tuple[lis
             else:
                 full_path = img_path
 
-            # block_index is the index in clean_blocks (without images)
-            # i.e., this image should be inserted after clean_blocks[block_index-1]
+            # block_index is the index in clean_blocks (without images/dividers)
             block_index = len(clean_blocks)
 
             # Get context from previous block for reference
             after_text = ""
             if clean_blocks:
                 prev_block = clean_blocks[-1].strip()
-                # Get last line of previous block
                 lines = [l for l in prev_block.split('\n') if l.strip()]
                 after_text = lines[-1][:80] if lines else ""
 
@@ -147,11 +182,13 @@ def extract_images_with_block_index(markdown: str, base_path: Path) -> tuple[lis
                 "block_index": block_index,
                 "after_text": after_text  # Keep for reference/debugging
             })
-        else:
-            clean_blocks.append(block)
+            continue
+
+        # Regular block
+        clean_blocks.append(block)
 
     clean_markdown = '\n\n'.join(clean_blocks)
-    return images, clean_markdown, len(clean_blocks)
+    return images, dividers, clean_markdown, len(clean_blocks)
 
 
 def extract_title(markdown: str) -> tuple[str, str]:
@@ -206,8 +243,8 @@ def markdown_to_html(markdown: str) -> str:
 
     html = re.sub(r'___CODE_BLOCK_START___(.*?)___CODE_BLOCK_END___', convert_code_block, html, flags=re.DOTALL)
 
-    # Horizontal rules (must be before headers to avoid conflicts)
-    html = re.sub(r'^---+$', r'<hr>', html, flags=re.MULTILINE)
+    # Note: Dividers (---) are extracted separately and inserted via X Articles menu
+    # They are NOT converted to <hr> tags since X Articles strips them
 
     # Headers (H2 only, H1 is title)
     html = re.sub(r'^## (.+)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
@@ -243,7 +280,7 @@ def markdown_to_html(markdown: str) -> str:
         if not part:
             continue
         # Skip if already a block element
-        if part.startswith(('<h2>', '<h3>', '<blockquote>', '<ul>', '<ol>', '<hr>')):
+        if part.startswith(('<h2>', '<h3>', '<blockquote>', '<ul>', '<ol>')):
             processed_parts.append(part)
         else:
             # Wrap in paragraph, convert single newlines to <br>
@@ -261,11 +298,17 @@ def parse_markdown_file(filepath: str) -> dict:
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
 
+    # Skip YAML frontmatter if present
+    if content.startswith('---'):
+        end_marker = content.find('---', 3)
+        if end_marker != -1:
+            content = content[end_marker + 3:].strip()
+
     # Extract title first (and remove H1 from markdown)
     title, content = extract_title(content)
 
-    # Extract images with block indices
-    images, clean_markdown, total_blocks = extract_images_with_block_index(content, base_path)
+    # Extract images and dividers with block indices
+    images, dividers, clean_markdown, total_blocks = extract_images_and_dividers(content, base_path)
 
     # Convert to HTML
     html = markdown_to_html(clean_markdown)
@@ -274,13 +317,11 @@ def parse_markdown_file(filepath: str) -> dict:
     cover_image = images[0]["path"] if images else None
     content_images = images[1:] if len(images) > 1 else []
 
-    # Adjust block_index for content images (subtract 1 since cover image is removed)
-    # The first content image's block_index was calculated including cover image's position
-
     return {
         "title": title,
         "cover_image": cover_image,
         "content_images": content_images,
+        "dividers": dividers,
         "html": html,
         "total_blocks": total_blocks,
         "source_file": str(path.absolute())
