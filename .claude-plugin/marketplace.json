@@ -35,6 +35,13 @@
             "version": "1.0.0",
             "source": "./skills/publish-x-article",
             "category": "productivity"
+        },
+        {
+            "name": "china-stock-analysis",
+            "description": "A股价值投资分析工具，提供股票筛选、个股深度分析、行业对比和估值计算功能。基于价值投资理论，使用akshare获取公开财务数据。",
+            "version": "1.0.0",
+            "source": "./skills/china-stock-analysis",
+            "category": "productivity"
         }
     ]
 }

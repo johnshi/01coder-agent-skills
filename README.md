@@ -150,6 +150,34 @@ Publish Markdown articles to X (Twitter) Articles editor with proper formatting.
 /publish-x-article
 ```
 
+---
+
+### China Stock Analysis (A股分析)
+
+基于价值投资理论的中国A股分析工具，面向低频交易的普通投资者。使用 akshare 获取公开财务数据。
+
+**Features:**
+- 股票筛选器 - 多条件筛选符合价值投资标准的股票
+- 财务分析 - 杜邦分析、盈利能力、偿债能力、成长性分析
+- 估值计算 - DCF、DDM、相对估值三种方法
+- 行业对比 - 同行业横向对比分析
+- 财务异常检测 - 应收账款异常、现金流背离、存货异常等
+- A股特色分析 - 政策敏感度、股东结构、质押比例
+
+**Supported Workflows:**
+- **Stock Screening** - 按PE/PB/ROE/股息率等条件筛选
+- **Stock Analysis** - 个股深度分析（摘要/标准/深度三级）
+- **Industry Comparison** - 同行业股票横向对比
+- **Valuation Calculator** - 内在价值测算与安全边际计算
+
+**Usage:**
+```
+分析贵州茅台
+筛选PE小于15、ROE大于15%的沪深300股票
+对比白酒行业前10名
+计算600519的内在价值
+```
+
 ## Project Structure
 
 ```
@@ -200,12 +228,26 @@ agent-skills/
 │   │   └── scripts/              # Conversion tools
 │   │       └── table_to_image.py
 │   │
-│   └── publish-x-article/
+│   ├── publish-x-article/
+│   │   ├── SKILL.md              # Skill definition
+│   │   └── scripts/              # Automation tools
+│   │       ├── parse_markdown.py
+│   │       ├── copy_to_clipboard.py
+│   │       └── table_to_image.py
+│   │
+│   └── china-stock-analysis/
 │       ├── SKILL.md              # Skill definition
-│       └── scripts/              # Automation tools
-│           ├── parse_markdown.py
-│           ├── copy_to_clipboard.py
-│           └── table_to_image.py
+│       ├── references/           # Value investing knowledge
+│       │   ├── value-investing-principles.md
+│       │   ├── financial-ratios.md
+│       │   └── a-stock-features.md
+│       ├── scripts/              # Analysis tools
+│       │   ├── data_fetcher.py
+│       │   ├── stock_screener.py
+│       │   ├── financial_analyzer.py
+│       │   └── valuation_calculator.py
+│       └── templates/            # Report templates
+│           └── analysis_report.md
 ├── .claude/                      # Claude Code configuration
 ├── LICENSE
 └── README.md
@@ -258,6 +300,10 @@ To create a new skill:
 - Node.js and npm (for mermaid-cli): `npm install -g @mermaid-js/mermaid-cli`
 - Playwright MCP for browser automation
 - X Premium or Premium+ subscription
+
+### China Stock Analysis
+- Python 3.8+ with dependencies: `pip install akshare pandas numpy`
+- Network access to akshare data sources (China mainland recommended)
 
 ## Acknowledgements
 
