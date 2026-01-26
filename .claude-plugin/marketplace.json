@@ -42,6 +42,13 @@
             "version": "1.0.0",
             "source": "./skills/china-stock-analysis",
             "category": "productivity"
+        },
+        {
+            "name": "diagram-to-image",
+            "description": "Convert Mermaid diagrams and Markdown tables to images (PNG/SVG) for platforms that don't support rich formatting",
+            "version": "1.0.0",
+            "source": "./skills/diagram-to-image",
+            "category": "productivity"
         }
     ]
 }
