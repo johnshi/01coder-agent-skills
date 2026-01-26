@@ -1,3 +1,8 @@
+---
+name: diagram-to-image
+description: Convert Mermaid diagrams and Markdown tables to images (PNG/SVG) for platforms that don't support rich formatting. Use when user asks to "convert to image", "export as PNG", "make this an image", or has content for X/Twitter that needs visual exports.
+---
+
 # Diagram to Image
 
 Convert Mermaid diagrams and Markdown tables to images (PNG/SVG) for use in platforms that don't support rich formatting, like X (Twitter).
