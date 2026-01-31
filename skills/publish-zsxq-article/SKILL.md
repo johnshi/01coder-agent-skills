@@ -9,8 +9,27 @@ Publish Markdown content to Zsxq (知识星球) article editor in Markdown mode,
 
 ## Prerequisites
 
-- Chrome DevTools MCP for browser automation
+- Browser automation MCP (either one):
+  - **Chrome DevTools MCP** (`mcp__chrome-devtools__*`)
+  - **Playwright MCP** (`mcp__playwright__*`)
 - User logged into Zsxq (知识星球)
+
+## Browser MCP Tool Mapping
+
+This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever is available:
+
+| Action | Chrome DevTools MCP | Playwright MCP |
+|--------|---------------------|----------------|
+| Navigate | `navigate_page` | `browser_navigate` |
+| Take snapshot | `take_snapshot` | `browser_snapshot` |
+| Take screenshot | `take_screenshot` | `browser_take_screenshot` |
+| Click element | `click` | `browser_click` |
+| Fill text | `fill` | `browser_type` |
+| Upload file | `upload_file` | `browser_file_upload` |
+| Press key | `press_key` | `browser_press_key` |
+| Evaluate JS | `evaluate_script` | `browser_console_exec` |
+
+**Detection**: Check available tools at runtime. If `mcp__chrome-devtools__navigate_page` exists, use Chrome DevTools MCP. If `mcp__playwright__browser_navigate` exists, use Playwright MCP.
 
 ## Key URLs
 
@@ -259,17 +278,26 @@ Image upload works in **both** Rich Text mode and Markdown mode using the `uploa
 
 ### Image Upload Workflow
 
-The `upload_file` tool works with the image button in both editor modes:
+Image upload works with the image button in both editor modes:
 
-1. **Take snapshot** to find the image button uid
+1. **Take snapshot** to find the image button ref/uid
    - Rich Text mode: `button "image"`
    - Markdown mode: `generic description="Add image"`
 
-2. **Upload image using `upload_file` tool**
+2. **Upload image**
+
+   Chrome DevTools MCP:
    ```
    upload_file:
      uid: <image button uid>
      filePath: /path/to/image.png
+   ```
+
+   Playwright MCP:
+   ```
+   browser_file_upload:
+     ref: <image button ref>
+     paths: ["/path/to/image.png"]
    ```
 
 3. **Verify upload** - take screenshot to confirm image appears in editor
